@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.css">
+</head>
+<body class="mw7 center georgia f4-l">    
+    <header class="pv4">
+        <nav class="flex items-center">
+            <a href="/" class="f4 f3-l gray no-underline">Falco Journal</a>
+            <div class="flex-grow-1 tr">
+                <a href="#" class="dib pa2 bg-light-gray gray no-underline bn br2">Save Entry</a>                
+            </div>
+        </nav>
+    </header>
+    
+    <ul id="bullet-editor" class="mh0 pl3 outline-0 dark-gray" contenteditable="true">
+        <li></li>                
+    </ul>
+
+    <form>
+        <input id="bullet-editor-input" type="hidden" />
+    </form>
+
+    <script type="text/javascript">
+        const bulletEditor = document.getElementById('bullet-editor');
+        const bulletEditorInput = document.getElementById('bullet-editor-input');
+        bulletEditor.addEventListener('input', (e) => {
+            let newContent = e.srcElement.innerHTML;
+            bulletEditorInput.value = newContent.trim();
+        })
+    </script>
+</body>
+</html>

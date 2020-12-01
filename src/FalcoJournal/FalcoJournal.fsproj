@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Donald" Version="5.0.0-alpha3" />
+    <PackageReference Include="Falco" Version="3.0.0-alpha6" />
+    <PackageReference Include="Validus" Version="1.0.0" />
+  </ItemGroup>
+</Project>
