@@ -5,12 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Domain.fs" />
+    <Compile Include="UI.fs" />
+    <Compile Include="Error.fs" />
+    <Compile Include="Entry.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Donald" Version="5.0.0-alpha3" />
-    <PackageReference Include="Falco" Version="3.0.0-alpha6" />
+    <PackageReference Include="Falco" Version="3.0.0" />
     <PackageReference Include="Validus" Version="1.0.0" />
   </ItemGroup>
 </Project>
