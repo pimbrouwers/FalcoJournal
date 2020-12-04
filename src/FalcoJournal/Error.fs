@@ -8,6 +8,11 @@ let invalidCsrfToken : HttpHandler =
     Response.withStatusCode 400 
     >> Response.ofEmpty
 
+/// Server Error (500) 
+let serverError : HttpHandler =
+    Response.withStatusCode 500 
+    >> Response.ofPlainText "Server error"
+
 /// Not found (404) HTML response
 let notFound : HttpHandler =
     let doc = UI.Layouts.master "Not Found" [ 
