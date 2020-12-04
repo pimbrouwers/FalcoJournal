@@ -1,28 +1,31 @@
 module FalcoJournal.Program
 
+open System.Data
+open System.Data.SQLite
 open Falco
 open Falco.Routing
 open Falco.HostBuilder
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
-open Microsoft.Data.Sqlite
+open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
-open System.Data
-
-// ------------
-// Database
-// ------------
-type DbConnectionFactory = unit -> IDbConnection
-
-let connectionString path = sprintf "Data Source=%s\\FalcoJournal.db; Version=3; Cache=Shared; Pooling=True; Max Pool Size=100;" path
+open FalcoJournal.Provider
 
 // ------------
 // Register services
 // ------------
-let configureServices (connectionString : string) (services : IServiceCollection) =    
-    let connectionFactory () =
-        new SqliteConnection(connectionString) :> IDbConnection
+let appConfiguration : IConfiguration =     
+    ConfigurationBuilder()
+        .AddJsonFile("appsettings.json")
+        .AddJsonFile("appsettings.Local.json")
+        .Build()
+        :> IConfiguration    
 
+// ------------
+// Register services
+// ------------
+let configureServices (connectionFactory : DbConnectionFactory) (services : IServiceCollection) =    
+    
     services.AddSingleton<DbConnectionFactory>(connectionFactory)
             .AddFalco() |> ignore
 
@@ -40,21 +43,22 @@ let configureApp (endpoints : HttpEndpoint list) (ctx : WebHostBuilderContext) (
 // -----------
 // Configure Web host
 // -----------
-let configureWebHost (connectionString : string) (endpoints : HttpEndpoint list) (webHost : IWebHostBuilder) =    
+let configureWebHost (endpoints : HttpEndpoint list) (webHost : IWebHostBuilder) =        
+    let connectionString = appConfiguration.GetConnectionString("Default")
+    printfn "Conn str: %s" connectionString
+    let connectionFactory () = new SQLiteConnection(connectionString, true) :> IDbConnection
+    use conn = connectionFactory ()
+    conn.Open()
     webHost
-        .ConfigureServices(configureServices connectionString)
+        .UseConfiguration(appConfiguration)
+        .ConfigureServices(configureServices connectionFactory)
         .Configure(configureApp endpoints)
 
 [<EntryPoint>]
-let main args =
-    if args.Length <> 1 then
-        failwith "Must provide a db directory"
-    
+let main args =            
     webHost args {
-        configure (configureWebHost (connectionString args.[0]))
-        endpoints [            
-            all "/" [
-                GET, Entry.Recent.handle ]
-        ]
+        configure configureWebHost
+        endpoints [ all "/" [ GET, Entry.Recent.handle ] ]
     }
+
     0

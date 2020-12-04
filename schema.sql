@@ -1,3 +1,7 @@
+PRAGMA journal_mode=WAL;
+
+DROP TABLE IF EXISTS entry;
+
 CREATE TABLE entry (
 	entry_id       INTEGER  NOT NULL  PRIMARY KEY
   , content        TEXT     NOT NULL

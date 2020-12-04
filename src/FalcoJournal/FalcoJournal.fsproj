@@ -8,6 +8,7 @@
     <Compile Include="Domain.fs" />
     <Compile Include="Provider.fs" />
     <Compile Include="UI.fs" />
+    <Compile Include="Service.fs" />
     <Compile Include="Error.fs" />
     <Compile Include="Entry.fs" />
     <Compile Include="Program.fs" />
@@ -17,6 +18,7 @@
     <PackageReference Include="Donald" Version="5.0.1" />
     <PackageReference Include="Falco" Version="3.0.1" />
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="5.0.0" />
+    <PackageReference Include="System.Data.Sqlite" Version="1.0.113.6" />
     <PackageReference Include="Validus" Version="1.0.0" />
   </ItemGroup>
 </Project>
