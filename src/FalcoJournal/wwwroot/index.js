@@ -1,9 +1,10 @@
 ﻿const bulletEditor = document.getElementById('bullet-editor')
-const bulletEditorInput = document.getElementById('bullet-editor-input')
+const bulletEditorHtml = document.getElementById('bullet-editor-html')
+const bulletEditorText = document.getElementById('bullet-editor-text')
 
 window.onload = () => {
-    bulletEditor.addEventListener('input', (e) => {
-        let newContent = e.srcElement.innerHTML;
-        bulletEditorInput.value = newContent.trim();
+    bulletEditor.addEventListener('input', (e) => {        
+        bulletEditorHtml.value = e.srcElement.innerHTML.trim();
+        bulletEditorText.value = e.srcElement.innerText.trim();
     })
 }

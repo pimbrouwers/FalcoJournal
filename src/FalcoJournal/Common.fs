@@ -1,12 +1,14 @@
 ﻿[<AutoOpen>]
 module FalcoJournal.Common
 
-module Endpoints =
-    let ``/`` = "/"    
-    
-    let ``/entry/create`` = "/entry/create"
-
 module Urls =
-    let index = Endpoints.``/``
+    let index = "/"
 
-    let entryCreate = Endpoints.``/entry/create``
+    let entryCreate = "/entry/create"
+    let entryEdit entryId = sprintf "/entry/edit/%A" entryId
+
+module Endpoints =
+    let ``/`` = Urls.index
+    
+    let ``/entry/create`` = Urls.entryCreate
+    let ``/entry/edit`` = Urls.entryEdit "{id}"

@@ -77,7 +77,7 @@ module Layouts =
             Elem.meta  [ Attr.charset "UTF-8" ]
             Elem.meta  [ Attr.httpEquiv "X-UA-Compatible"; Attr.content "IE=edge, chrome=1" ]
             Elem.meta  [ Attr.name "viewport"; Attr.content "width=device-width, initial-scale=1" ]                
-            Elem.title [] [ Text.raw htmlTitle ]
+            Elem.title [] [ Text.rawf "%s | FalcoJournal" htmlTitle ]
             Elem.link  [ Attr.href tachyonsUrl; Attr.rel "stylesheet" ]                 
         ]
         
@@ -85,6 +85,6 @@ module Layouts =
     let master (htmlTitle : string) (content : XmlNode list) =
         Elem.html [ Attr.lang "en"; ] [
             Elem.head [] (head htmlTitle)
-            Elem.body [ Attr.class' "mw7 center ph3 f4-l georgia dark-gray" ] [ 
+            Elem.body [ Attr.class' "mw7 center ph3 f4-l georgia" ] [ 
                 Elem.main [] content 
                 Elem.script [ Attr.src "/index.js"; Attr.type' "text/javascript" ] [] ] ]

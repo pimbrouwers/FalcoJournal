@@ -59,7 +59,8 @@ let main args =
                 Entry.Recent.handle
             
             all ``/entry/create``
-                [ GET, Entry.Create.handle ]
+                [ GET, Entry.Create.handle 
+                  POST, Entry.Create.handleSubmit ]
         ]
     }
 

@@ -3,13 +3,22 @@
 open System
 
 type Entry = 
-    { Content      : string 
+    { EntryId      : int
+      HtmlContent  : string 
+      TextContent  : string
       EntryDate    : DateTime 
       ModifiedDate : DateTime }
 
-    static member Create content = 
+type NewEntry = 
+    { HtmlContent  : string 
+      TextContent  : string
+      EntryDate    : DateTime 
+      ModifiedDate : DateTime }
+
+    static member Create html text = 
         let now = DateTime.UtcNow
 
-        { Content      = content 
+        { HtmlContent  = html
+          TextContent  = text
           EntryDate    = now
           ModifiedDate = now }
