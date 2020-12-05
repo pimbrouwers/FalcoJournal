@@ -9,23 +9,13 @@ open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
+open FalcoJournal.Common.Endpoints
 open FalcoJournal.Provider
 
 // ------------
 // Register services
 // ------------
-let appConfiguration : IConfiguration =     
-    ConfigurationBuilder()
-        .AddJsonFile("appsettings.json")
-        .AddJsonFile("appsettings.Local.json")
-        .Build()
-        :> IConfiguration    
-
-// ------------
-// Register services
-// ------------
 let configureServices (connectionFactory : DbConnectionFactory) (services : IServiceCollection) =    
-    
     services.AddSingleton<DbConnectionFactory>(connectionFactory)
             .AddFalco() |> ignore
 
@@ -35,8 +25,9 @@ let configureServices (connectionFactory : DbConnectionFactory) (services : ISer
 let configureApp (endpoints : HttpEndpoint list) (ctx : WebHostBuilderContext) (app : IApplicationBuilder) =    
     let devMode = StringUtils.strEquals ctx.HostingEnvironment.EnvironmentName "Development"    
     
-    app.UseWhen(devMode, fun app ->app.UseDeveloperExceptionPage())
-       .UseWhen(not(devMode), fun app -> app.UseFalcoExceptionHandler(Error.serverError))
+    app.UseStaticFiles()
+       .UseWhen(devMode, fun app ->app.UseDeveloperExceptionPage())
+       .UseWhen(not(devMode), fun app -> app.UseFalcoExceptionHandler(Error.serverError))       
        .UseFalco(endpoints) 
        .Run(HttpHandler.toRequestDelegate Error.notFound) |> ignore
 
@@ -44,11 +35,16 @@ let configureApp (endpoints : HttpEndpoint list) (ctx : WebHostBuilderContext) (
 // Configure Web host
 // -----------
 let configureWebHost (endpoints : HttpEndpoint list) (webHost : IWebHostBuilder) =        
+    let appConfiguration : IConfiguration =     
+        ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .AddJsonFile("appsettings.Local.json")
+            .Build()
+            :> IConfiguration   
+
     let connectionString = appConfiguration.GetConnectionString("Default")
-    printfn "Conn str: %s" connectionString
     let connectionFactory () = new SQLiteConnection(connectionString, true) :> IDbConnection
-    use conn = connectionFactory ()
-    conn.Open()
+
     webHost
         .UseConfiguration(appConfiguration)
         .ConfigureServices(configureServices connectionFactory)
@@ -58,7 +54,13 @@ let configureWebHost (endpoints : HttpEndpoint list) (webHost : IWebHostBuilder)
 let main args =            
     webHost args {
         configure configureWebHost
-        endpoints [ all "/" [ GET, Entry.Recent.handle ] ]
+        endpoints [ 
+            get ``/``
+                Entry.Recent.handle
+            
+            all ``/entry/create``
+                [ GET, Entry.Create.handle ]
+        ]
     }
 
     0
