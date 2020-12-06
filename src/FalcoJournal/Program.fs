@@ -54,16 +54,17 @@ let configureWebHost (endpoints : HttpEndpoint list) (webHost : IWebHostBuilder)
 let main args =            
     webHost args {
         configure configureWebHost
-        endpoints [ 
-            get ``/``
-                Entry.Recent.handle
-            
+        endpoints [             
             all ``/entry/create``
-                [ GET, Entry.Create.handle 
-                  POST, Entry.Create.handleSubmit ]
+                [ GET, Entry.New.handle 
+                  POST, Entry.Create.handle ]
 
             all ``/entry/edit/{id}`` 
-                [ GET, Entry.Edit.handle ]
+                [ GET, Entry.Edit.handle 
+                  POST, Entry.Update.handle ]
+            
+            get ``/``
+                Entry.Index.handle
         ]
     }
 

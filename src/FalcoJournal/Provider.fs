@@ -39,7 +39,6 @@ module EntryProvider =
                     , html_content
                     , text_content
                     , entry_date
-                    , modified_date
             FROM      entry
             WHERE     entry_id = @entry_id"
 
@@ -47,8 +46,7 @@ module EntryProvider =
                 { EntryId      = rd.ReadInt32 "entry_id"
                   HtmlContent  = rd.ReadString "html_content"
                   TextContent  = rd.ReadString "text_content"
-                  EntryDate    = rd.ReadDateTime "entry_date"
-                  ModifiedDate = rd.ReadDateTime "modified_date" }
+                  EntryDate    = rd.ReadDateTime "entry_date" }
 
             dbCommand conn {
                 cmdText  sql
@@ -57,16 +55,15 @@ module EntryProvider =
             |> DbConn.querySingle fromDataReader
             |> DbResult.logError log
 
-    type GetRecent = unit -> DbResult<EntrySummary list>
-    let getRecent (log : ILogger) (conn : IDbConnection) : GetRecent =
+    type GetAll = unit -> DbResult<EntrySummary list>
+    let getAll (log : ILogger) (conn : IDbConnection) : GetAll =
         fun () ->
             let sql = "
             SELECT    entry_id  
                     , DATETIME(entry_date) AS entry_date
                     , SUBSTR(text_content, 0, 50) AS summary
             FROM      entry
-            ORDER BY  DATETIME(entry_date) DESC
-            LIMIT     100"
+            ORDER BY  DATETIME(entry_date) DESC"
 
             let fromDataReader (rd : IDataReader) = 
                 { EntryId   = rd.ReadInt32 "entry_id"

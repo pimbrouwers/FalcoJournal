@@ -14,7 +14,7 @@ module Common =
     let errorSummary (errors : string list) =
         match errors.Length with
         | n when n > 0 ->
-            Elem.ul [ Attr.class' "pa2 pl4 red bg-washed-red ba br1 b--red" ] 
+            Elem.ul [ Attr.class' "mt0 pa2 pl4 red bg-washed-red ba br1 b--red" ] 
                     (errors |> List.map (fun e -> Elem.li [] [ Text.raw e ]))
 
         | _ -> 
