@@ -11,7 +11,7 @@ open FalcoJournal.Service
 open FalcoJournal.UI
 
 module private Partials = 
-    let bulletEditor action htmlContent textContent = 
+    let bulletEditor action htmlContent = 
         Elem.form [ Attr.id "entry-editor"
                     Attr.method "post"
                     Attr.action action ] [
@@ -29,9 +29,9 @@ module private Partials =
                          
             Elem.input [ Attr.id "bullet-editor-text" 
                          Attr.type' "hidden" 
-                         Attr.name "text_content"
-                         Attr.value textContent ]      
+                         Attr.name "text_content" ]      
         ]
+
 
 module Create = 
     type Input = 
@@ -63,7 +63,7 @@ module Create =
 
         let commitEntry entry : Result<unit, Error> =
             match createEntry entry with
-            | Error _ -> Error UnexpectedError
+            | Error e -> Error UnexpectedError
             | Ok ()   -> Ok ()
             
         fun input ->
@@ -89,7 +89,7 @@ module Create =
         Layouts.master title [
             Common.topBar actions
             Common.errorSummary errors
-            Partials.bulletEditor Urls.entryCreate editorContent input.TextContent            
+            Partials.bulletEditor Urls.entryCreate editorContent          
         ]
 
     let handle : HttpHandler =
@@ -109,19 +109,28 @@ module Create =
         let handleOk () =
             Response.redirect Urls.index false
 
-        let workflow conn input =
-            service (EntryProvider.create conn) input
+        let workflow log conn input =
+            service (EntryProvider.create log conn) input
 
         let formMap (form : FormCollectionReader) =
             { HtmlContent = form.GetString "html_content" ""
               TextContent = form.GetString "text_content" "" }
 
-        Request.mapForm formMap (Service.run workflow handleOk handleError)
+        Request.mapForm 
+            formMap 
+            (Service.run workflow handleOk handleError)
 
 module Edit = 
     type Error = 
         | UnknownEntry
         | UnexpectedError
+
+    let service (getEntry : EntryProvider.Get) : ServiceHandler<int, Entry, Error> =
+        fun input ->
+            match getEntry input with
+            | Error _         -> Error UnexpectedError
+            | Ok None         -> Error UnknownEntry
+            | Ok (Some entry) -> Ok entry
 
     let view (errors : string list) (entry : Entry) = 
         let title = "A place for your thoughts..."
@@ -136,46 +145,41 @@ module Edit =
         Layouts.master title [
             Common.topBar actions
             Common.errorSummary errors
-            Partials.bulletEditor formAction editorContent entry.TextContent            
+            Partials.bulletEditor formAction editorContent            
         ]
+
+    let handle : HttpHandler =
+        let handleError _ _ =
+            Error.notFound
+            
+        let handleOk entry : HttpHandler =
+            entry
+            |> view []
+            |> Response.ofHtml
+
+        let workflow log conn input =
+            service (EntryProvider.get log conn) input
+
+        let routeMap (route : RouteCollectionReader) =
+            route.GetInt32 "id" -1
+        
+        Request.mapRoute 
+            routeMap 
+            (Service.run workflow handleOk handleError)
 
 module Recent = 
     type Error = 
         | UnexpectedError
         | NoEntries 
 
-    type EntryModel = 
-        { EntryId  : int
-          yyyyMMdd : string          
-          Summary  : string }
-
-    let service (getRecentEntries : EntryProvider.GetRecent) : ServiceHandler<unit, EntryModel list, Error> =
-        let queryData () : Result<Entry list, Error> = 
-            match getRecentEntries () with
+    let service (getRecentEntries : EntryProvider.GetRecent) : ServiceHandler<unit, EntrySummary list, Error> =        
+        fun input ->        
+            match getRecentEntries input with
             | Error _          -> Error UnexpectedError
             | Ok e when e = [] -> Error NoEntries
             | Ok e             -> Ok e
-
-        let mapEntries entries : EntryModel list =
-            let toEntryModel (entry : Entry) = 
-                let summary =
-                    if entry.TextContent.Length > 50 then 
-                        entry.TextContent.Substring(0,47) |> sprintf "%s..." 
-                    else 
-                        entry.TextContent
-
-                { EntryId  = entry.EntryId
-                  yyyyMMdd = entry.EntryDate.ToString("yyyy/MM/dd HH:MM")
-                  Summary  = summary }
-
-            entries
-            |> List.map toEntryModel
-
-        fun input ->        
-            queryData input
-            |> Result.map mapEntries
-            
-    let view (errors : string list) (entries : EntryModel list)  =
+                        
+    let view (errors : string list) (entries : EntrySummary list)  =
         let title = "Recent Entries"
 
         let actions = [
@@ -186,7 +190,7 @@ module Recent =
             entries |> List.map (fun e ->
                 Elem.a [ Attr.href (Urls.entryEdit e.EntryId)
                          Attr.class' "db mb4 no-underline gray" ] [
-                    Elem.div [ Attr.class' "mb1 f6 code moon-gray" ] [ Text.raw e.yyyyMMdd  ] 
+                    Elem.div [ Attr.class' "mb1 f6 code moon-gray" ] [ Text.raw (e.EntryDate.ToString("yyyy/MM/dd HH:MM")) ] 
                     Elem.div [] [ Text.raw e.Summary ] 
                     Elem.div [ Attr.class' "w1 mt3 bt b--moon-gray" ] [] ])
 
@@ -213,8 +217,8 @@ module Recent =
             |> view [] 
             |> Response.ofHtml
 
-        let workflow conn input =
-            service (EntryProvider.getRecent conn) input
+        let workflow log conn input =
+            service (EntryProvider.getRecent log conn) input
 
         Service.run workflow handleOk handleError ()
 

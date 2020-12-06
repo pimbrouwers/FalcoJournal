@@ -61,6 +61,9 @@ let main args =
             all ``/entry/create``
                 [ GET, Entry.Create.handle 
                   POST, Entry.Create.handleSubmit ]
+
+            all ``/entry/edit/{id}`` 
+                [ GET, Entry.Edit.handle ]
         ]
     }
 
