@@ -3,6 +3,8 @@
 open System
 open Falco
 open Falco.Markup
+open Validus
+open Validus.Operators
 open FalcoJournal.Domain
 open FalcoJournal.Provider
 open FalcoJournal.Service
@@ -10,14 +12,14 @@ open FalcoJournal.UI
 
 module private Partials = 
     let bulletEditor action htmlContent textContent = 
-        Elem.form [ Attr.id "create-entry"
+        Elem.form [ Attr.id "entry-editor"
                     Attr.method "post"
                     Attr.action action ] [
 
             Elem.ul [ Attr.id "bullet-editor"
                       Attr.class' "mh0 pl3 outline-0"
-                      Attr.create "contenteditable" "true" ] [    
-                
+                      Attr.create "contenteditable" "true" ] [
+                      
                 htmlContent
             ]
             
@@ -41,21 +43,40 @@ module Create =
               TextContent = String.Empty }
 
     type Error =
-        | UnexpectedError of Input
-        | InvalidInput of Input * string list
+        | InvalidInput of string list
+        | UnexpectedError
 
     let service (createEntry : EntryProvider.Create) : ServiceHandler<Input, unit, Error> =                
-        fun input ->
-            let entry = NewEntry.Create input.HtmlContent input.TextContent
+        let validateInput input : Result<NewEntry, Error> =
+            let result =
+                NewEntry.Create
+                <!> Validators.String.notEmpty None "Html" input.HtmlContent
+                <*> Validators.String.notEmpty None "Text" input.TextContent
+                
+            match result with
+            | Success newEntry -> Ok newEntry
+            | Failure errors   -> 
+                errors 
+                |> ValidationErrors.toList
+                |> InvalidInput
+                |> Error
+
+        let commitEntry entry : Result<unit, Error> =
             match createEntry entry with
-            | Error _ -> Error (UnexpectedError input)
+            | Error _ -> Error UnexpectedError
             | Ok ()   -> Ok ()
+            
+        fun input ->
+            input
+            |> validateInput
+            |> Result.bind commitEntry
 
     let view (errors : string list) (input : Input) =
         let title = "A place for your thoughts..."
         
         let actions = [
-            Forms.submit [ Attr.value "Save Entry"; Attr.form "create-entry" ] ]
+            Forms.submit [ Attr.value "Save Entry"; Attr.form "entry-editor" ] 
+            Buttons.solidWhite "Cancel" Urls.index ]
 
         let editorContent = 
             match input.HtmlContent with
@@ -68,22 +89,19 @@ module Create =
         Layouts.master title [
             Common.topBar actions
             Common.errorSummary errors
-            Partials.bulletEditor Urls.entryCreate editorContent input.TextContent
+            Partials.bulletEditor Urls.entryCreate editorContent input.TextContent            
         ]
 
     let handle : HttpHandler =
         view [] Input.Empty
-        |> Response.ofHtml 
+        |> Response.ofHtml
 
     let handleSubmit : HttpHandler =
-        let handleError error = 
-            let (input, errorMessages) =                 
+        let handleError input error = 
+            let errorMessages =                 
                 match error with 
-                | UnexpectedError input -> 
-                    input, [ "Something went wrong" ]
-
-                | InvalidInput (input, errors) ->
-                    input, errors
+                | UnexpectedError     -> [ "Something went wrong" ]
+                | InvalidInput errors -> errors
 
             view errorMessages input
             |> Response.ofHtml
@@ -99,6 +117,27 @@ module Create =
               TextContent = form.GetString "text_content" "" }
 
         Request.mapForm formMap (Service.run workflow handleOk handleError)
+
+module Edit = 
+    type Error = 
+        | UnknownEntry
+        | UnexpectedError
+
+    let view (errors : string list) (entry : Entry) = 
+        let title = "A place for your thoughts..."
+        
+        let actions = [
+            Forms.submit [ Attr.value "Save Entry"; Attr.form "entry-editor" ] 
+            Buttons.solidWhite "Cancel" Urls.index ]
+
+        let formAction = Urls.entryEdit entry.EntryId
+        let editorContent = Text.raw entry.HtmlContent
+
+        Layouts.master title [
+            Common.topBar actions
+            Common.errorSummary errors
+            Partials.bulletEditor formAction editorContent entry.TextContent            
+        ]
 
 module Recent = 
     type Error = 
@@ -160,7 +199,7 @@ module Recent =
         ]
 
     let handle : HttpHandler =
-        let handleError error =
+        let handleError _ error =
             let errorMessages = 
                 match error with
                 | UnexpectedError _ -> [ "Something went wrong" ]

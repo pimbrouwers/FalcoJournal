@@ -13,7 +13,7 @@ type ServiceHandler<'input, 'output, 'error> = 'input -> Result<'output, 'error>
 let run
     (serviceHandler: IDbConnection -> ServiceHandler<'input, 'output, 'error>)
     (handleOk : 'output -> HttpHandler)
-    (handleError : 'error -> HttpHandler)
+    (handleError : 'input -> 'error -> HttpHandler)
     (input : 'input) : HttpHandler =
     fun ctx ->
         let connectionFactory = ctx.GetService<DbConnectionFactory>()
@@ -22,6 +22,6 @@ let run
         let respondWith = 
             match serviceHandler connection input with
             | Ok output -> handleOk output
-            | Error error -> handleError error
+            | Error error -> handleError input error
 
         respondWith ctx

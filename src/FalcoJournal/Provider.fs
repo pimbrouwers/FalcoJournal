@@ -17,17 +17,15 @@ module EntryProvider =
 
     type Create = NewEntry -> DbResult<unit>
     let create (conn : IDbConnection) : Create =
-        fun entry ->
+        fun entry ->            
             let sql = "
             INSERT INTO entry (html_content, text_content, entry_date, modified_date)
-            VALUES (@html_content, @text_content, @entry_date, @modified_date)"
+            VALUES (@html_content, @text_content, DATE('now'), DATE('now'))"
             
             dbCommand conn {
                 cmdText  sql
                 cmdParam [ "html_content", SqlType.String entry.HtmlContent
-                           "text_content", SqlType.String entry.TextContent
-                           "entry_date", SqlType.DateTime entry.EntryDate 
-                           "modified_date", SqlType.DateTime entry.ModifiedDate ]
+                           "text_content", SqlType.String entry.TextContent ]
             }
             |> DbConn.exec 
 
@@ -48,3 +46,20 @@ module EntryProvider =
             }
             |> DbConn.query fromDataReader
 
+    type Update = Entry -> DbResult<unit>
+    let update (conn : IDbConnection) : Update =
+        fun entry ->
+            let sql = "
+                UPDATE  entry
+                SET     html_content = @html_content
+                      , text_content = @text_content
+                      , modified_date = DATE('now')
+                WHERE   entry_id = @entry_id"
+
+            dbCommand conn {
+                cmdText  sql 
+                cmdParam [ "html_content", SqlType.String entry.HtmlContent                           
+                           "text_content", SqlType.String entry.TextContent
+                           "entry_id", SqlType.Int32 entry.EntryId ]
+            }
+            |> DbConn.exec

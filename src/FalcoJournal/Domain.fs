@@ -11,14 +11,8 @@ type Entry =
 
 type NewEntry = 
     { HtmlContent  : string 
-      TextContent  : string
-      EntryDate    : DateTime 
-      ModifiedDate : DateTime }
+      TextContent  : string }
 
     static member Create html text = 
-        let now = DateTime.UtcNow
-
         { HtmlContent  = html
-          TextContent  = text
-          EntryDate    = now
-          ModifiedDate = now }
+          TextContent  = text }

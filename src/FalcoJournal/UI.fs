@@ -85,6 +85,6 @@ module Layouts =
     let master (htmlTitle : string) (content : XmlNode list) =
         Elem.html [ Attr.lang "en"; ] [
             Elem.head [] (head htmlTitle)
-            Elem.body [ Attr.class' "mw7 center ph3 f4-l georgia" ] [ 
+            Elem.body [ Attr.class' "mw7 center ph3 f4-l georgia gray" ] [ 
                 Elem.main [] content 
                 Elem.script [ Attr.src "/index.js"; Attr.type' "text/javascript" ] [] ] ]
