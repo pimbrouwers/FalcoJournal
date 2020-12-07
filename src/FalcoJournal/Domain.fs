@@ -20,6 +20,8 @@ type NewEntry =
       TextContent : string }
 
     static member Create html text : ValidationResult<NewEntry> =
+        // ensure the HTML is not empty, and check for empty <li></li>
+        // which is the default value
         let htmlValidator : Validator<string> = 
             Validators.String.notEmpty None
             <+> Validators.String.notEquals "<li></li>" (Some (sprintf "%s must not be empty"))
@@ -43,6 +45,8 @@ type UpdateEntry =
               HtmlContent = entry.HtmlContent 
               TextContent = entry.TextContent }
 
+        // repurpose the validation from NewEntry, since it's shape
+        // resembles this, also check that the EntryId is gt 0
         create 
         <!> Validators.Int.greaterThan 0 (Some (sprintf "Invalid %s")) "Entry ID" entryId 
         <*> NewEntry.Create html text

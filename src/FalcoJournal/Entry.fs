@@ -6,7 +6,6 @@ open Falco
 open Falco.Markup
 open Microsoft.Extensions.Logging
 open Validus
-open Validus.Operators
 open FalcoJournal.Domain
 open FalcoJournal.Provider
 open FalcoJournal.Service
@@ -57,7 +56,7 @@ module Index =
         let entryElems =
             entries |> List.map (fun e ->
                 Elem.a [ Attr.href (Urls.entryEdit e.EntryId)
-                         Attr.class' "db mb4 no-underline gray" ] [
+                         Attr.class' "db mb4 no-underline white-90" ] [
                     Elem.div [ Attr.class' "mb1 f6 code moon-gray" ] [ Text.raw (e.EntryDate.ToString("yyyy/MM/dd HH:MM")) ] 
                     Elem.div [] [ Text.raw e.Summary ] 
                     Elem.div [ Attr.class' "w1 mt3 bt b--moon-gray" ] [] ])

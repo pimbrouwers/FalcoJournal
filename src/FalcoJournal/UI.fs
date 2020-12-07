@@ -22,13 +22,13 @@ module Common =
 
     /// Page title as <h1></h1>
     let pageTitle (title : string) =
-        Elem.h1 [ Attr.class' "pb3 code tc gray" ] [ Text.raw title ]
+        Elem.h1 [ Attr.class' "pb3 code tc white-90" ] [ Text.raw title ]
 
     /// Top bar with pluggable actions
     let topBar (actions : XmlNode list) =
         Elem.header [ Attr.class' "pv4" ] [
             Elem.nav [ Attr.class' "flex items-center" ] [
-                Elem.a [ Attr.class' "f4 f3-l gray no-underline" 
+                Elem.a [ Attr.class' "f4 f3-l white-90 no-underline" 
                          Attr.href Urls.index ] [ Text.raw "Falco Journal" ]
                 Elem.div [ Attr.class' "flex-grow-1 tr" ] actions ] ]
 
@@ -37,14 +37,14 @@ module Buttons =
     let solidGray label url = 
         let attr =  [ 
             Attr.href url
-            Attr.class' "dib pa2 bg-light-gray gray no-underline bn br1" ]
+            Attr.class' "dib pa2 bg-light-gray dark-gray no-underline bn br1" ]
 
         Elem.a attr [ Text.raw label ]
 
     let solidWhite label url = 
         let attr =  [ 
             Attr.href url
-            Attr.class' "dib pa2 ph3-l gray no-underline bn br1" ]
+            Attr.class' "dib pa2 ph3-l white-90 no-underline bn br1" ]
 
         Elem.a attr [ Text.raw label ]
 
@@ -63,7 +63,7 @@ module Forms =
         // safely combine custom attributes with defaults
         let defaultAttr = [ 
             Attr.type' "submit"
-            Attr.class' "dib pa2 bg-light-gray gray bn br1"]
+            Attr.class' "dib pa2 bg-light-gray dark-gray bn br1"]
 
         let mergedAttr = attr |> Attr.merge defaultAttr 
         Elem.input mergedAttr
@@ -83,8 +83,8 @@ module Layouts =
         
     /// Master layout which accepts a title and content for <body></body>
     let master (htmlTitle : string) (content : XmlNode list) =
-        Elem.html [ Attr.lang "en"; ] [
+        Elem.html [ Attr.lang "en"; Attr.class' "bg-dark-gray" ] [
             Elem.head [] (head htmlTitle)
-            Elem.body [ Attr.class' "mw7 center ph3 f4-l georgia gray" ] [ 
+            Elem.body [ Attr.class' "mw7 center ph3 f4-l georgia white-90" ] [ 
                 Elem.main [] content 
                 Elem.script [ Attr.src "/index.js"; Attr.type' "text/javascript" ] [] ] ]

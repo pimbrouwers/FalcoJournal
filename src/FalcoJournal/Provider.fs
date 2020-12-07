@@ -5,9 +5,11 @@ open Donald
 open Microsoft.Extensions.Logging
 open FalcoJournal.Domain
 
+/// Represents the creation of a new IDbConnection
 type DbConnectionFactory = unit -> IDbConnection
 
 module private DbResult = 
+    /// Log DbResult, if error, and return
     let logError (log : ILogger) (dbResult : DbResult<'a>) : DbResult<'a> =
         match dbResult with
         | Ok _     -> dbResult
@@ -63,7 +65,7 @@ module EntryProvider =
                     , DATETIME(entry_date) AS entry_date
                     , SUBSTR(text_content, 0, 50) AS summary
             FROM      entry
-            ORDER BY  DATETIME(entry_date) DESC"
+            ORDER BY  DATETIME(entry_date) DESC, DATETIME(modified_date) DESC"
 
             let fromDataReader (rd : IDataReader) = 
                 { EntryId   = rd.ReadInt32 "entry_id"
