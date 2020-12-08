@@ -14,6 +14,7 @@ open FalcoJournal.UI
 module private Partials = 
     let bulletEditor action htmlContent = 
         Elem.form [ Attr.id "entry-editor"
+                    Attr.class' "lh-copy"
                     Attr.method "post"
                     Attr.action action ] [
 

@@ -16,9 +16,9 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Donald" Version="5.0.1" />
-    <PackageReference Include="Falco" Version="3.0.1" />
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.6" />
-    <PackageReference Include="Validus" Version="1.0.0" />
+    <PackageReference Include="Donald" Version="5.0.*1" />
+    <PackageReference Include="Falco" Version="3.0.*" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.113.*" />
+    <PackageReference Include="Validus" Version="1.0.*" />
   </ItemGroup>
 </Project>

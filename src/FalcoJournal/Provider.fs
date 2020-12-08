@@ -14,7 +14,7 @@ module private DbResult =
         match dbResult with
         | Ok _     -> dbResult
         | Error ex ->
-            log.LogError(ex.Error, sprintf "DB ERROR: Failted to execute\n%s" ex.Statement)        
+            log.LogError(ex.Error, sprintf "DB ERROR: Failed to execute\n%s" ex.Statement)        
             dbResult
 
 module EntryProvider =  

@@ -2,12 +2,6 @@
 
 open Falco.Markup
 
-module Elem =    
-    let script = Elem.tag "script"
-
-module Attr =
-    let form v = Attr.create "form" v
-
 /// Reusable components
 module Common = 
     /// Display a list of errors as <ul>...</ul>
@@ -70,9 +64,10 @@ module Forms =
 
 /// Website layouts
 module Layouts =
-    let private tachyonsUrl = "https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css"
     
     let private head (htmlTitle : string) : XmlNode list = 
+        let tachyonsUrl = "https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css"
+
         [
             Elem.meta  [ Attr.charset "UTF-8" ]
             Elem.meta  [ Attr.httpEquiv "X-UA-Compatible"; Attr.content "IE=edge, chrome=1" ]
