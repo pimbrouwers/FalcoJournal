@@ -2,6 +2,8 @@
 
 A bullet journal built with Falco, .NET 5.x and ASP.NET Core
 
+Code for blog post: https://www.pimbrouwers.com/2020/12/08/fsharp-on-the-web-a-guide-to-building-websites-with-falco-dotnet-x-and-aspdotnet-core.html
+
 ## Getting Started
 
 ```powershell
